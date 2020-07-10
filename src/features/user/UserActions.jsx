@@ -4,12 +4,12 @@ import cuid from "cuid";
 import {
   asyncActionStart,
   asyncActionFinish,
-  asyncActionError
+  asyncActionError,
 } from "../async/AsyncActions";
 import firebase from "././../../app/config/firebaseConfig";
 import { FETCH_EVENT } from "../events/eventContants";
 
-export const setMainPhoto = photo => async (
+export const setMainPhoto = (photo) => async (
   dispatch,
   getState,
   { getFirebase, getFirestore }
@@ -25,7 +25,7 @@ export const setMainPhoto = photo => async (
     dispatch(asyncActionStart());
     let batch = firestore.batch();
     await batch.update(userDocRef, {
-      photoURL: photo.url
+      photoURL: photo.url,
     });
 
     let activityQuery = await activityDoc.where("hostUid", "==", user.uid);
@@ -39,12 +39,12 @@ export const setMainPhoto = photo => async (
       if (activity.data()) {
         if (activity.data().hostUid === user.uid) {
           batch.update(activityDocRef, {
-            photoURL: photo.url
+            photoURL: photo.url,
           });
         }
       }
     }
-    // Doi anh trong comment 
+    // Doi anh trong comment
     let eventQuery = await eventAttendeeRef
       .where("userUid", "==", user.uid)
       .where("eventDate", ">=", today);
@@ -58,11 +58,11 @@ export const setMainPhoto = photo => async (
         if (event.data().hostUid === user.uid) {
           batch.update(eventDocRef, {
             hostPhotoURL: photo.url,
-            [`attendees.${user.uid}.photoURL`]: photo.url
+            [`attendees.${user.uid}.photoURL`]: photo.url,
           });
         } else {
           batch.update(eventDocRef, {
-            [`attendees.${user.uid}.photoURL`]: photo.url
+            [`attendees.${user.uid}.photoURL`]: photo.url,
           });
         }
       }
@@ -75,8 +75,7 @@ export const setMainPhoto = photo => async (
   }
 };
 
-
-export const updateProfile = userUpdate => async (
+export const updateProfile = (userUpdate) => async (
   dispatch,
   getState,
   { getFirebase }
@@ -84,7 +83,7 @@ export const updateProfile = userUpdate => async (
   const firebase = getFirebase();
   const firestore = firebase.firestore();
   const user = firebase.auth().currentUser;
-  const eventDocRef = firestore.collection('events');
+  const eventDocRef = firestore.collection("events");
   let activityDoc = firestore.collection("activity");
 
   const { isLoaded, isEmpty, ...updatedUser } = userUpdate;
@@ -98,21 +97,19 @@ export const updateProfile = userUpdate => async (
     await firebase.updateProfile(updatedUser);
     let batch = firestore.batch();
 
-
-    let eventQuery = await eventDocRef
-    .where("hostUid", "==", user.uid)
+    let eventQuery = await eventDocRef.where("hostUid", "==", user.uid);
     let eventQuerySnap = await eventQuery.get();
     for (let i = 0; i < eventQuerySnap.docs.length; i++) {
       let eventDocData = await firestore
         .collection("events")
         .doc(eventQuerySnap.docs[i].id);
-      let event =  await eventDocData.get();
+      let event = await eventDocData.get();
       if (event.data()) {
         if (event.data().hostUid === user.uid) {
           batch.update(eventDocData, {
-            hostedBy : updatedUser.displayName
+            hostedBy: updatedUser.displayName,
           });
-        } 
+        }
       }
     }
 
@@ -126,12 +123,11 @@ export const updateProfile = userUpdate => async (
       if (activity.data()) {
         if (activity.data().hostUid === user.uid) {
           batch.update(activityDocRef, {
-            hostedBy: updatedUser.displayName
+            hostedBy: updatedUser.displayName,
           });
         }
       }
     }
-
 
     await batch.commit();
     toastr.success("Success ", " Profile updated ");
@@ -153,30 +149,33 @@ export const uploadProfileImage = (file, fileName) => async (
   const user = firebase.auth().currentUser;
   const path = `${user.uid}/user_images`;
   const options = {
-    name: imageName
+    name: imageName,
   };
   try {
     dispatch(asyncActionStart());
+    console.log(firebase);
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
-    let downloadURL = await uploadedFile.uploadTaskSnapshot.downloadURL;
+    console.log(uploadedFile);
+    let downloadURL = await uploadedFile.uploadTaskSnapshot.ref.getDownloadURL();
+
     let userDoc = await firestore.get(`users/${user.uid}`);
     if (!userDoc.data().photoURL) {
       await firebase.updateProfile({
-        photoURL: downloadURL
+        photoURL: downloadURL,
       });
       await user.updateProfile({
-        photoURL: downloadURL
+        photoURL: downloadURL,
       });
     }
     await firestore.add(
       {
         collection: "users",
         doc: user.uid,
-        subcollections: [{ collection: "photos" }]
+        subcollections: [{ collection: "photos" }],
       },
       {
         name: imageName,
-        url: downloadURL
+        url: downloadURL,
       }
     );
     dispatch(asyncActionFinish());
@@ -185,7 +184,7 @@ export const uploadProfileImage = (file, fileName) => async (
     throw new Error("Problem uploading photos");
   }
 };
-export const deletePhoto = photo => async (
+export const deletePhoto = (photo) => async (
   dispatch,
   getState,
   { getFirebase, getFirestore }
@@ -202,17 +201,16 @@ export const deletePhoto = photo => async (
       subcollections: [
         {
           collection: "photos",
-          doc: photo.id
-        }
-      ]
+          doc: photo.id,
+        },
+      ],
     });
   } catch (error) {
     console.log(error.message);
   }
 };
 
-
-export const goingToEvent = event => async (dispatch, getState) => {
+export const goingToEvent = (event) => async (dispatch, getState) => {
   dispatch(asyncActionStart());
   const firestore = firebase.firestore();
   const user = firebase.auth().currentUser;
@@ -222,7 +220,7 @@ export const goingToEvent = event => async (dispatch, getState) => {
     joinDate: Date.now(),
     photoURL: photoURL || "/assets/user.png",
     displayName: user.displayName,
-    host: false
+    host: false,
   };
   try {
     let eventDocRef = firestore.collection("events").doc(event.id);
@@ -230,17 +228,17 @@ export const goingToEvent = event => async (dispatch, getState) => {
       .collection("event_attendee")
       .doc(`${event.id}_${user.uid}`);
 
-    await firestore.runTransaction(async tracsaction => {
+    await firestore.runTransaction(async (tracsaction) => {
       await tracsaction.get(eventDocRef);
       await tracsaction.update(eventDocRef, {
-        [`attendees.${user.uid}`]: attendee
+        [`attendees.${user.uid}`]: attendee,
       });
 
       await tracsaction.set(eventAttendeeRef, {
         eventId: event.id,
         userUid: user.uid,
         eventDate: event.date,
-        host: false
+        host: false,
       });
     });
     dispatch(asyncActionFinish());
@@ -251,7 +249,7 @@ export const goingToEvent = event => async (dispatch, getState) => {
   }
 };
 
-export const cancelGoingToEvent = event => async (
+export const cancelGoingToEvent = (event) => async (
   dispatch,
   getState,
   { getFirestore }
@@ -260,7 +258,7 @@ export const cancelGoingToEvent = event => async (
   const user = firestore.auth().currentUser;
   try {
     await firestore.update(`events/${event.id}`, {
-      [`attendees.${user.uid}`]: firestore.FieldValue.delete()
+      [`attendees.${user.uid}`]: firestore.FieldValue.delete(),
     });
     await firestore.delete(`event_attendee/${event.id}_${user.uid}`);
     toastr.success("Success ", " You Have Remove yourself from  the Event ");
@@ -325,7 +323,7 @@ export const getUserEvents = (userUid, activeTab) => async (
   }
 };
 
-export const followUser = userToFollow => async (
+export const followUser = (userToFollow) => async (
   dispatch,
   getState,
   { getFirestore }
@@ -335,14 +333,14 @@ export const followUser = userToFollow => async (
   const following = {
     photoURL: userToFollow.photoURL || "/assets/user.png",
     city: userToFollow.city || "Unkown City",
-    displayName: userToFollow.displayName
+    displayName: userToFollow.displayName,
   };
   try {
     await firestore.set(
       {
         collection: "users",
         doc: user.uid,
-        subcollections: [{ collection: "following", doc: userToFollow.id }]
+        subcollections: [{ collection: "following", doc: userToFollow.id }],
       },
       following
     );
@@ -351,7 +349,7 @@ export const followUser = userToFollow => async (
   }
 };
 
-export const unfollowUser = userToUnfollow => async (
+export const unfollowUser = (userToUnfollow) => async (
   dispatch,
   getState,
   { getFirestore }
@@ -362,7 +360,7 @@ export const unfollowUser = userToUnfollow => async (
     await firestore.delete({
       collection: "users",
       doc: user.uid,
-      subcollections: [{ collection: "following", doc: userToUnfollow.id }]
+      subcollections: [{ collection: "following", doc: userToUnfollow.id }],
     });
     toastr.success("Success You Unfollowed this Friend ");
   } catch (error) {
