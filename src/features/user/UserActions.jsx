@@ -92,7 +92,7 @@ export const updateProfile = (userUpdate) => async (
 
   try {
     dispatch(asyncActionStart());
-    await firebase.updateProfile(updatedUser);
+    await user.updateProfile(updatedUser);
     let batch = firestore.batch();
 
     let eventQuery = await eventDocRef.where("hostUid", "==", user.uid);
