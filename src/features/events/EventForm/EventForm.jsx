@@ -7,11 +7,12 @@ import { connect } from "react-redux";
 import { geocodeByAddress, getLatLng } from "react-places-autocomplete";
 import Script from "react-load-script";
 import { createEvent, updateEvent, cancelToggle } from "../eventActions";
+import moment from "moment";
 import {
   composeValidators,
   combineValidators,
   isRequired,
-  hasLengthGreaterThan
+  hasLengthGreaterThan,
 } from "revalidate";
 import TextInput from "./../../../app/common/form/TextInput";
 import TextArea from "./../../../app/common/form/TextArea";
@@ -25,7 +26,7 @@ const categories = [
   { key: "culture", text: "Culture", value: "culture" },
   { key: "film", text: "Film", value: "film" },
   { key: "food", text: "Food", value: "food" },
-  { key: "music", text: "Music", value: "music" }
+  { key: "music", text: "Music", value: "music" },
 ];
 
 const validate = combineValidators({
@@ -34,18 +35,18 @@ const validate = combineValidators({
   description: composeValidators(
     isRequired({ message: "Please Enter a description " }),
     hasLengthGreaterThan(4)({
-      message: "Description needs to be at least 5 character !"
+      message: "Description needs to be at least 5 character !",
     })
   )(),
   city: isRequired("city"),
   venue: isRequired("venua"),
-  date: isRequired("date Event")
+  date: isRequired("date Event"),
 });
 class EventForm extends Component {
   state = {
     cityLatLng: {},
     venueLatLng: {},
-    scriptLoaded: false
+    scriptLoaded: false,
   };
 
   async componentDidMount() {
@@ -57,24 +58,26 @@ class EventForm extends Component {
     await firestore.unsetListener(`events/${match.params.id}`);
   }
 
-  handleCitySelect = selectedCity => {
+  handleCitySelect = (selectedCity) => {
     geocodeByAddress(selectedCity)
-      .then(results => getLatLng(results[0]))
-      .then(latlng => {
+      .then((results) => {
+        return getLatLng(results[0]);
+      })
+      .then((latlng) => {
         this.setState({
-          cityLatLng: latlng
+          cityLatLng: latlng,
         });
       })
       .then(() => {
         this.props.change("city", selectedCity);
       });
   };
-  handleVenueSelect = selectedVenue => {
+  handleVenueSelect = (selectedVenue) => {
     geocodeByAddress(selectedVenue)
-      .then(results => getLatLng(results[0]))
-      .then(latlng => {
+      .then((results) => getLatLng(results[0]))
+      .then((latlng) => {
         this.setState({
-          venueLatLng: latlng
+          venueLatLng: latlng,
         });
       })
       .then(() => {
@@ -85,11 +88,11 @@ class EventForm extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.selectedEvent !== this.props.selectedEvent) {
       this.setState({
-        event: nextProps.selectedEvent || this.props.event
+        event: nextProps.selectedEvent || this.props.event,
       });
     }
   }
-  onFormSubmit = async values => {
+  onFormSubmit = async (values) => {
     values.venueLatLng = this.state.venueLatLng;
     if (this.props.initialValues.id) {
       values.venueLatLng = this.props.event.venueLatLng;
@@ -107,7 +110,7 @@ class EventForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      event: this.props.event
+      event: this.props.event,
     };
   }
   render() {
@@ -117,13 +120,12 @@ class EventForm extends Component {
       pristine,
       event,
       cancelToggle,
-      loading
+      loading,
     } = this.props;
-    console.log(event);
     return (
       <Grid>
         <Script
-          url="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSV1AmlA-ArhLJz9u0TXS8zQEXt5wmdAU&v=3.exp&libraries=places"
+          url="https://maps.googleapis.com/maps/api/js?v=weekly&key=AIzaSyC8uPt5LGB9_U0wipyvugntWnyZpuVS4Y0&libraries=places"
           onLoad={this.handleScriptLoaded}
         />
         <Grid.Column width={10}>
@@ -162,14 +164,16 @@ class EventForm extends Component {
                 content="Event Location Details"
                 style={{ fontSize: "20px" }}
               />
-              <Field
-                name="city"
-                type="text"
-                component={PlaceInput}
-                options={{ types: ["(cities)"] }}
-                placeholder="Thành Phố Tổ Chức..."
-                onSelect={this.handleCitySelect}
-              />
+              {this.state.scriptLoaded && (
+                <Field
+                  name="city"
+                  type="text"
+                  component={PlaceInput}
+                  options={{ types: ["(cities)"] }}
+                  placeholder="Thành Phố Tổ Chức..."
+                  onSelect={this.handleCitySelect}
+                />
+              )}
               {this.state.scriptLoaded && (
                 <Field
                   name="venue"
@@ -178,7 +182,7 @@ class EventForm extends Component {
                   options={{
                     location: new google.maps.LatLng(this.state.cityLatLng),
                     radius: 1000,
-                    types: ["establishment"]
+                    types: ["establishment"],
                   }}
                   placeholder="Địa Điểm Tổ Chức ..."
                   onSelect={this.handleVenueSelect}
@@ -193,12 +197,7 @@ class EventForm extends Component {
                 showTimeSelect
                 placeholder="Thời Gian Tổ Chức ..."
               />
-              <Button
-                loading={loading}
-                disabled={invalid || submitting || pristine}
-                positive
-                type="submit"
-              >
+              <Button loading={loading} positive type="submit">
                 Submit
               </Button>
 
@@ -229,7 +228,7 @@ class EventForm extends Component {
   }
 }
 
-const mapState = state => {
+const mapState = (state) => {
   let event = {};
   if (state.firestore.ordered.events && state.firestore.ordered.events[0]) {
     event = state.firestore.ordered.events[0];
@@ -237,13 +236,13 @@ const mapState = state => {
   return {
     initialValues: event,
     event,
-    loading: state.async.loading
+    loading: state.async.loading,
   };
 };
 const actions = {
   updateEvent,
   createEvent,
-  cancelToggle
+  cancelToggle,
 };
 
 export default withFirestore(
@@ -255,7 +254,7 @@ export default withFirestore(
       form: "eventForm",
       enableReinitialize: true,
       destroyOnUnmount: false,
-      validate
+      validate,
     })(EventForm)
   )
 );

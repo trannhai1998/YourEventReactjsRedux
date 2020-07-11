@@ -8,8 +8,7 @@ import { deleteEvent } from "./../eventActions";
 import EventList from "./../EventList/EventList";
 import LoadingComponent from "./../../../app/layout/Loading";
 import EventActivity from "./../EventActivity/EventActivity";
-import EventTop from './../eventsTop/EventTop'
-
+import EventTop from "./../eventsTop/EventTop";
 
 class EventDashboard extends Component {
   constructor(props) {
@@ -18,7 +17,7 @@ class EventDashboard extends Component {
       moreEvents: false,
       loadingInitial: true,
       loadedEvents: [],
-      contextRef: {}
+      contextRef: {},
     };
   }
   async componentDidMount() {
@@ -26,12 +25,11 @@ class EventDashboard extends Component {
     if (next && next.docs && next.docs.length > 1) {
       this.setState({
         moreEvents: true,
-        loadingInitial: false
+        loadingInitial: false,
       });
-    }
-    else{
+    } else {
       this.setState({
-        loadingInitial: false
+        loadingInitial: false,
       });
     }
   }
@@ -49,15 +47,15 @@ class EventDashboard extends Component {
     let next = await this.props.getEventsForDashboard(lastEvent);
     if ((next && next.docs && next.docs.length <= 1) || !next) {
       this.setState({
-        moreEvents: false
+        moreEvents: false,
       });
     }
   };
-  handleContextRef = contextRef => this.setState({ contextRef });
+  handleContextRef = (contextRef) => this.setState({ contextRef });
   render() {
     const { loading, activities, followings } = this.props;
     const { moreEvents, loadingInitial, loadedEvents, contextRef } = this.state;
-    if(loadingInitial) return <LoadingComponent inverted={true} />;
+    if (loadingInitial) return <LoadingComponent inverted={true} />;
     return (
       <Grid>
         <Grid.Column width={16}>
@@ -66,7 +64,7 @@ class EventDashboard extends Component {
         <Grid.Column width={10}>
           <div ref={this.handleContextRef}>
             <EventList
-              followings= {followings}
+              followings={followings}
               onEventOpen={this.HandleOpenEvent}
               events={loadedEvents}
               deleteEvent={this.HandleDeleteEvent}
@@ -77,7 +75,11 @@ class EventDashboard extends Component {
           </div>
         </Grid.Column>
         <Grid.Column width={6}>
-          <EventActivity activities={activities} followings={followings} contextRef={contextRef} />
+          <EventActivity
+            activities={activities}
+            followings={followings}
+            contextRef={contextRef}
+          />
         </Grid.Column>
         <Grid.Column width={10}>
           <Loader active={loading} />
@@ -87,30 +89,29 @@ class EventDashboard extends Component {
   }
 }
 
-const mapState = state => {
+const mapState = (state) => {
   return {
     events: state.event,
     loading: state.async.loading,
     activities: state.firestore.ordered.activity,
     followings: state.firestore.ordered.following,
-    auth: state.firebase.auth
+    auth: state.firebase.auth,
   };
 };
 const Actions = {
   deleteEvent,
-  getEventsForDashboard
+  getEventsForDashboard,
 };
 const query = ({ auth }) => {
   return [
     {
       collection: "activity",
       orderBy: ["timestamp", "desc"],
-      limit: 5
+      limit: 5,
     },
-   
   ];
 };
 export default connect(
   mapState,
   Actions
-)(firestoreConnect(props => query(props))(EventDashboard));
+)(firestoreConnect((props) => query(props))(EventDashboard));

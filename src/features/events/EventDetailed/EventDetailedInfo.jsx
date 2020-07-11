@@ -1,61 +1,72 @@
-import { Grid , Segment,Icon , Button } from 'semantic-ui-react'
-import React, { Component } from 'react';
-import EventDetailedMaps from './EventDetailedMaps';
-import format from 'date-fns/format';
+import { Grid, Segment, Icon, Button } from "semantic-ui-react";
+import React, { Component } from "react";
+import EventDetailedMaps from "./EventDetailedMaps";
+import format from "date-fns/format";
+import moment from "moment";
 
 class EventDetailedInfo extends Component {
   state = {
-    showMap : false
-  }
+    showMap: false,
+  };
   showMapToggle = () => {
     this.setState({
-      showMap : !this.state.showMap
-    })
-  }
+      showMap: !this.state.showMap,
+    });
+  };
   render() {
-    const {event } = this.props;
+    const { event } = this.props;
     return (
       <Segment.Group>
-      <Segment attached="top">
-        <Grid>
-          <Grid.Column width={1}>
-            <Icon size="large" color="teal" name="info" />
-          </Grid.Column>
-          <Grid.Column width={15}>
-            <p>{event.description}</p>
-          </Grid.Column>
-        </Grid>
-      </Segment>
-      <Segment attached>
-        <Grid verticalAlign="middle">
-          <Grid.Column width={1}>
-            <Icon name="calendar" size="large" color="teal" />
-          </Grid.Column>
-          <Grid.Column width={15}>
-            <span>{format(event.date,'dddd Do MMMM')} at{' '} {format(event.date, 'HH:mm')}</span>
-          </Grid.Column>
-        </Grid>
-      </Segment>
-      <Segment attached>
-        <Grid verticalAlign="middle">
-          <Grid.Column width={1}>
-            <Icon name="marker" size="large" color="teal" />
-          </Grid.Column>
-          <Grid.Column width={11}>
-            <span>{event.venue}</span>
-          </Grid.Column>
-          <Grid.Column width={4}>
-            <Button onClick={this.showMapToggle} color="teal" size="tiny" content="Show Map" />
-          </Grid.Column>
-        </Grid>
-      </Segment>
-      { this.state.showMap && (
-      <EventDetailedMaps lat={event.venueLatLng.lat} lng={event.venueLatLng.lng}/>
-      )}
-    </Segment.Group>
-
-    )
+        <Segment attached="top">
+          <Grid>
+            <Grid.Column width={1}>
+              <Icon size="large" color="teal" name="info" />
+            </Grid.Column>
+            <Grid.Column width={15}>
+              <p>{event.description}</p>
+            </Grid.Column>
+          </Grid>
+        </Segment>
+        <Segment attached>
+          <Grid verticalAlign="middle">
+            <Grid.Column width={1}>
+              <Icon name="calendar" size="large" color="teal" />
+            </Grid.Column>
+            <Grid.Column width={15}>
+              <span>
+                {moment(event.date.seconds * 1000).format("MM/DD/YYYY")} at{" "}
+                {moment(event.date.seconds * 1000).format("HH:mm")}
+              </span>
+            </Grid.Column>
+          </Grid>
+        </Segment>
+        <Segment attached>
+          <Grid verticalAlign="middle">
+            <Grid.Column width={1}>
+              <Icon name="marker" size="large" color="teal" />
+            </Grid.Column>
+            <Grid.Column width={11}>
+              <span>{event.venue}</span>
+            </Grid.Column>
+            <Grid.Column width={4}>
+              <Button
+                onClick={this.showMapToggle}
+                color="teal"
+                size="tiny"
+                content="Show Map"
+              />
+            </Grid.Column>
+          </Grid>
+        </Segment>
+        {this.state.showMap && (
+          <EventDetailedMaps
+            lat={event.venueLatLng.lat}
+            lng={event.venueLatLng.lng}
+          />
+        )}
+      </Segment.Group>
+    );
   }
 }
 
-export default EventDetailedInfo
+export default EventDetailedInfo;

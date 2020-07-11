@@ -12,11 +12,17 @@ class PlaceInput extends Component {
     super(props);
     this.state = {
       scriptLoader: false,
+      address: "",
     };
   }
 
   handleScriptLoaded = () => this.setState({ scriptLoader: true });
-  const;
+  onChangeAddress = (address) => {
+    this.setState((prev) => ({
+      ...prev,
+      address,
+    }));
+  };
   render() {
     const {
       input,
@@ -26,10 +32,11 @@ class PlaceInput extends Component {
       options,
       meta: { touched, error },
     } = this.props;
+
     return (
       <Form.Field error={touched && !!error} width={width}>
         <Script
-          url="https://maps.googleapis.com/maps/api/js?v=weekly&key=AIzaSyAeln-S0wWoC72CQSz_vJlFVRV3bdzXPU8&libraries=places"
+          url="https://maps.googleapis.com/maps/api/js?v=weekly&key=AIzaSyC8uPt5LGB9_U0wipyvugntWnyZpuVS4Y0&libraries=places"
           onLoad={this.handleScriptLoaded}
         />
         {this.state.scriptLoader && (
@@ -38,6 +45,8 @@ class PlaceInput extends Component {
             options={options}
             onSelect={onSelect}
             styles={styles}
+            onChange={this.onChangeAddress}
+            value={this.state.address}
           />
         )}
         {touched && error && (
