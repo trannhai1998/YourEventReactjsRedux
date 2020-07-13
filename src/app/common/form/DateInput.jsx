@@ -2,6 +2,7 @@ import React from "react";
 import { Form, Label } from "semantic-ui-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
 import moment from "moment";
 
 const DateInput = ({
@@ -11,19 +12,24 @@ const DateInput = ({
   meta: { touched, error },
   ...rest
 }) => {
+  console.log("Value: ", value);
   if (value) {
-    value = moment(value.seconds * 1000);
+    if (value.seconds) {
+      value = moment(moment(value.seconds * 1000)).toDate();
+      console.log(value);
+    }
+    console.log(value);
   }
   return (
     <Form.Field error={touched && !!error} width={width}>
       <DatePicker
         {...rest}
         placeholderText={placeholder}
-        selected={value ? value : null}
-        onChange={(date) => {
-          console.log(date);
-        }}
+        onChange={onChange}
+        scrollableYearDropdown
+        dateFormat="MMM dd yyyy hh:mm"
         onBlur={() => onBlur()}
+        selected={value ? value : null}
         {...restInput}
       />
       {touched && error && (

@@ -92,6 +92,7 @@ export const updateProfile = (userUpdate) => async (
 
   try {
     dispatch(asyncActionStart());
+    console.log("Update User : ", updatedUser);
     await user.updateProfile(updatedUser);
     let batch = firestore.batch();
 
