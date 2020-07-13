@@ -62,6 +62,7 @@ class Basics extends Component {
               width={8}
               name="dateOfBirth"
               component={DateInput}
+              dateFormat="MMM dd yyyy"
               placeholder="Date of Birth"
               showMonthDropdown
               showYearDropdown

@@ -19,14 +19,19 @@ const UserDetailedHeader = ({ profile }) => {
               src={profile.photoURL || "/assets/user.png"}
             />
             <Item.Content verticalAlign="bottom">
-              <Label  style={{fontSize: '20px', marginBottom: '30px'}} color='teal' as="h1">{profile.displayName}</Label>
+              <Label
+                style={{ fontSize: "20px", marginBottom: "30px" }}
+                color="teal"
+                as="h1"
+              >
+                {profile.displayName}
+              </Label>
               <br />
-              <Header as="h3" style={{ marginBottom: '10px'}}>
+              <Header as="h3" style={{ marginBottom: "10px" }}>
                 {profile.occupation || "Unknown Occupation"}
               </Header>
               <br />
-              <Header as="h3">{`${age}, ${profile.city ||
-                "Unknown City"} `}</Header>
+              <Header as="h3">{`${profile.city || "Unknown City"} `}</Header>
             </Item.Content>
           </Item>
         </Item.Group>

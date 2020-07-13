@@ -27,7 +27,6 @@ const DateInput = ({
         placeholderText={placeholder}
         onChange={onChange}
         scrollableYearDropdown
-        dateFormat="MMM dd yyyy hh:mm"
         onBlur={() => onBlur()}
         selected={value ? value : null}
         {...restInput}

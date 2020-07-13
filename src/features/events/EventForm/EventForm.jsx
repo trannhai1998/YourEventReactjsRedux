@@ -190,7 +190,7 @@ class EventForm extends Component {
                 name="date"
                 type="date"
                 component={DateInput}
-                dateFormat="YYYY-MM-DD HH:mm"
+                dateFormat="MMM dd yyyy HH:mm"
                 timeFormat="HH:mm"
                 showTimeSelect
                 placeholder="Thời Gian Tổ Chức ..."

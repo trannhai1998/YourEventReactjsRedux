@@ -1,10 +1,12 @@
 import React from "react";
 import { Grid, Segment, Header, List, Item, Icon } from "semantic-ui-react";
 import format from "date-fns/format";
+import moment from "moment";
+
 const UserDetailedDescription = ({ profile }) => {
   let createdAt;
   if (profile.createdAt) {
-    createdAt = format(profile.createdAt, "D MMM YYYY");
+    createdAt = moment(profile.createdAt.seconds * 1000).format("D MMM YYYY");
   }
   return (
     <Grid.Column width={12}>
