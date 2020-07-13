@@ -31,19 +31,21 @@ export const registerUser = (user) => {
     const firestore = getFirestore();
     try {
       //create
-      let createdUser = await firebase
+      const createdUser = await firebase
         .auth()
         .createUserWithEmailAndPassword(user.email, user.password);
-      //update the profile
-      await createdUser.updateProfile({
+      console.log(user.displayName);
+      //   update the profile
+      await createdUser.user.updateProfile({
         displayName: user.displayName,
       });
+
       //create new profile
       let newUser = {
         displayName: user.displayName,
         createdAt: firestore.FieldValue.serverTimestamp(),
       };
-      await firestore.set(`users/${createdUser.uid}`, { ...newUser });
+      await firestore.set(`users/${createdUser.user.uid}`, { ...newUser });
       dispatch(closeModal());
     } catch (error) {
       if (error && error.message === "The email address is badly formatted.") {

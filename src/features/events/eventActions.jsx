@@ -10,10 +10,9 @@ import compareAsc from "date-fns/compare_asc";
 export const createEvent = (event) => {
   return async (dispatch, getState, { getFirestore }) => {
     const firestore = getFirestore();
-    const user = firestore.auth().currentUser;
+    const user = firebase.auth().currentUser;
     const photoURL = getState().firebase.profile.photoURL;
     let newEvent = createNewEvent(user, photoURL, event);
-    console.log("new Event", newEvent);
     try {
       let createdEvent = await firestore.add("events", newEvent);
       await firestore.set(`event_attendee/${createdEvent.id}_${user.uid}`, {
@@ -25,7 +24,6 @@ export const createEvent = (event) => {
       toastr.success("Success! ", " Event has been Created !");
     } catch (error) {
       toastr.error("Oops ", " Something was Wrong !");
-      console.log(error.message);
     }
   };
 };
@@ -70,7 +68,6 @@ export const updateEvent = (event) => {
       dispatch(actions.asyncActionFinish());
     } catch (error) {
       dispatch(actions.asyncActionError());
-      console.log(error.message);
       toastr.error("Oops ", " Something was Wrong !");
     }
   };
@@ -127,7 +124,6 @@ export const loadEvents = () => {
       dispatch(fetchEvent(events));
       dispatch(actions.asyncActionFinish());
     } catch (error) {
-      console.log(error);
       dispatch(actions.asyncActionError());
     }
   };
@@ -155,7 +151,6 @@ export const getEventsForDashboard = (lastEvent) => async (
           .limit(2))
       : (query = eventsRef.where("date", ">=", today).orderBy("date").limit(2));
     let querySnap = await query.get();
-
     if (querySnap.docs.length === 0) {
       dispatch(actions.asyncActionFinish());
       return;

@@ -7,6 +7,7 @@ import { connect } from "react-redux";
 import { geocodeByAddress, getLatLng } from "react-places-autocomplete";
 import Script from "react-load-script";
 import { createEvent, updateEvent, cancelToggle } from "../eventActions";
+import moment from "moment";
 import {
   composeValidators,
   combineValidators,
@@ -119,11 +120,10 @@ class EventForm extends Component {
       cancelToggle,
       loading,
     } = this.props;
-    console.log(event);
     return (
       <Grid>
         <Script
-          url="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSV1AmlA-ArhLJz9u0TXS8zQEXt5wmdAU&v=3.exp&libraries=places"
+          url="https://maps.googleapis.com/maps/api/js?v=weekly&key=AIzaSyC8uPt5LGB9_U0wipyvugntWnyZpuVS4Y0&libraries=places"
           onLoad={this.handleScriptLoaded}
         />
         <Grid.Column width={10}>
@@ -162,14 +162,16 @@ class EventForm extends Component {
                 content="Event Location Details"
                 style={{ fontSize: "20px" }}
               />
-              <Field
-                name="city"
-                type="text"
-                component={PlaceInput}
-                options={{ types: ["(cities)"] }}
-                placeholder="Thành Phố Tổ Chức..."
-                onSelect={this.handleCitySelect}
-              />
+              {this.state.scriptLoaded && (
+                <Field
+                  name="city"
+                  type="text"
+                  component={PlaceInput}
+                  options={{ types: ["(cities)"] }}
+                  placeholder="Thành Phố Tổ Chức..."
+                  onSelect={this.handleCitySelect}
+                />
+              )}
               {this.state.scriptLoaded && (
                 <Field
                   name="venue"
@@ -193,12 +195,7 @@ class EventForm extends Component {
                 showTimeSelect
                 placeholder="Thời Gian Tổ Chức ..."
               />
-              <Button
-                loading={loading}
-                disabled={invalid || submitting || pristine}
-                positive
-                type="submit"
-              >
+              <Button loading={loading} positive type="submit">
                 Submit
               </Button>
 

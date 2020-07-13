@@ -31,7 +31,6 @@ export const setMainPhoto = (photo) => async (
     let activityQuery = await activityDoc.where("hostUid", "==", user.uid);
     let activityQuerySnap = await activityQuery.get();
     for (let i = 0; i < activityQuerySnap.docs.length; i++) {
-      console.log(activityQuerySnap.docs[i].id);
       let activityDocRef = await firestore
         .collection("activity")
         .doc(activityQuerySnap.docs[i].id);
@@ -70,7 +69,6 @@ export const setMainPhoto = (photo) => async (
     await batch.commit();
     dispatch(asyncActionFinish());
   } catch (error) {
-    console.log(error.message);
     dispatch(asyncActionError());
   }
 };
@@ -85,6 +83,7 @@ export const updateProfile = (userUpdate) => async (
   const user = firebase.auth().currentUser;
   const eventDocRef = firestore.collection("events");
   let activityDoc = firestore.collection("activity");
+  const userDoc = firestore.collection(`users`).doc(user.uid);
 
   const { isLoaded, isEmpty, ...updatedUser } = userUpdate;
 
@@ -94,8 +93,11 @@ export const updateProfile = (userUpdate) => async (
 
   try {
     dispatch(asyncActionStart());
-    await firebase.updateProfile(updatedUser);
+    console.log("Update User : ", updatedUser);
+    await user.updateProfile(updatedUser);
+
     let batch = firestore.batch();
+    const updateUserAction = await userDoc.update({ ...userUpdate });
 
     let eventQuery = await eventDocRef.where("hostUid", "==", user.uid);
     let eventQuerySnap = await eventQuery.get();
@@ -113,27 +115,10 @@ export const updateProfile = (userUpdate) => async (
       }
     }
 
-    let activityQuery = await activityDoc.where("hostUid", "==", user.uid);
-    let activityQuerySnap = await activityQuery.get();
-    for (let i = 0; i < activityQuerySnap.docs.length; i++) {
-      let activityDocRef = await firestore
-        .collection("activity")
-        .doc(activityQuerySnap.docs[i].id);
-      let activity = await activityDocRef.get();
-      if (activity.data()) {
-        if (activity.data().hostUid === user.uid) {
-          batch.update(activityDocRef, {
-            hostedBy: updatedUser.displayName,
-          });
-        }
-      }
-    }
-
     await batch.commit();
     toastr.success("Success ", " Profile updated ");
     dispatch(asyncActionFinish());
   } catch (error) {
-    console.log(error.message);
     dispatch(asyncActionError());
   }
 };
@@ -155,11 +140,8 @@ export const uploadProfileImage = (file, fileName) => async (
   try {
     dispatch(asyncActionStart());
     let uploadedFile = await firebase.uploadFile(path, file, null, options);
-    console.log("uploadedFile: ", uploadedFile);
-    let downloadURL = await uploadedFile.uploadTaskSnapshot.metaData
-      .getReference()
-      .getDownloadUrl();
-    console.log(" Download URl: ", downloadURL);
+    let downloadURL = await uploadedFile.uploadTaskSnapshot.ref.getDownloadURL();
+
     let userDoc = await firestore.get(`users/${user.uid}`);
     if (!userDoc.data().photoURL) {
       await firebase.updateProfile({
@@ -208,9 +190,7 @@ export const deletePhoto = (photo) => async (
         },
       ],
     });
-  } catch (error) {
-    console.log(error.message);
-  }
+  } catch (error) {}
 };
 
 export const goingToEvent = (event) => async (dispatch, getState) => {
@@ -258,7 +238,7 @@ export const cancelGoingToEvent = (event) => async (
   { getFirestore }
 ) => {
   const firestore = getFirestore();
-  const user = firestore.auth().currentUser;
+  const user = firebase.auth().currentUser;
   try {
     await firestore.update(`events/${event.id}`, {
       [`attendees.${user.uid}`]: firestore.FieldValue.delete(),
@@ -266,7 +246,6 @@ export const cancelGoingToEvent = (event) => async (
     await firestore.delete(`event_attendee/${event.id}_${user.uid}`);
     toastr.success("Success ", " You Have Remove yourself from  the Event ");
   } catch (error) {
-    console.log(error);
     toastr.error("Oops Something Was Wrong ");
   }
 };
@@ -320,7 +299,6 @@ export const getUserEvents = (userUid, activeTab) => async (
 
     dispatch(asyncActionFinish());
   } catch (error) {
-    console.log(error.message);
     toastr.error("Oops ", " Something Was Wrong !");
     dispatch(asyncActionError());
   }
@@ -332,7 +310,7 @@ export const followUser = (userToFollow) => async (
   { getFirestore }
 ) => {
   const firestore = getFirestore();
-  const user = firestore.auth().currentUser;
+  const user = firebase.auth().currentUser;
   const following = {
     photoURL: userToFollow.photoURL || "/assets/user.png",
     city: userToFollow.city || "Unkown City",
@@ -347,9 +325,7 @@ export const followUser = (userToFollow) => async (
       },
       following
     );
-  } catch (error) {
-    console.log(error.messgae);
-  }
+  } catch (error) {}
 };
 
 export const unfollowUser = (userToUnfollow) => async (
@@ -358,7 +334,7 @@ export const unfollowUser = (userToUnfollow) => async (
   { getFirestore }
 ) => {
   const firestore = getFirestore();
-  const user = firestore.auth().currentUser;
+  const user = firebase.auth().currentUser;
   try {
     await firestore.delete({
       collection: "users",
@@ -368,6 +344,5 @@ export const unfollowUser = (userToUnfollow) => async (
     toastr.success("Success You Unfollowed this Friend ");
   } catch (error) {
     toastr.error("Oops Something was Wrong ");
-    console.log(error.message);
   }
 };

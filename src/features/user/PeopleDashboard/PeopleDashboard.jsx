@@ -1,5 +1,13 @@
 import React, { Component } from "react";
-import { Grid, Segment, Header, Card, Label,Input, Icon} from "semantic-ui-react";
+import {
+  Grid,
+  Segment,
+  Header,
+  Card,
+  Label,
+  Input,
+  Icon,
+} from "semantic-ui-react";
 import PersonCard from "./PersonCard";
 import { compose } from "redux";
 import { firestoreConnect } from "react-redux-firebase";
@@ -11,7 +19,7 @@ class PeopleDashboard extends Component {
     isLoading: false,
     results: [],
     value: "",
-    valueSelected: ""
+    valueSelected: "",
   };
   handleResultSelect = (e, { result }) =>
     this.setState({ value: result, valueSelected: result.displayName });
@@ -29,46 +37,52 @@ class PeopleDashboard extends Component {
       if (this.state.value.length < 1) return this.resetComponent();
 
       const re = new RegExp(_.escapeRegExp(this.state.value), "i");
-      const isMatch = result => re.test(result.displayName);
+      const isMatch = (result) => re.test(result.displayName);
 
       this.setState({
         isLoading: false,
-        results: _.filter(this.props.allUsers, isMatch)
+        results: _.filter(this.props.allUsers, isMatch),
       });
     }, 300);
   };
 
-  resultRenderer = ({id , photoURL, displayName}) => (
+  resultRenderer = ({ id, photoURL, displayName }) => (
     <Card.Group itemsPerRow={8} stackable>
-    {this.state.results &&
-      this.state.results.map(result => (
-        <PersonCard key={result.id} user={result} />
-      ))}
-  </Card.Group>
-  )
+      {this.state.results &&
+        this.state.results.map((result) => (
+          <PersonCard key={result.id} user={result} />
+        ))}
+    </Card.Group>
+  );
   render() {
-    const { followers, following} = this.props;
+    const { followers, following } = this.props;
     const { results, value } = this.state;
     return (
       <Grid>
         <Grid.Column width={16} height={400}>
-          <Segment style={{minHeight: '300px'}}>
+          <Segment style={{ minHeight: "300px" }}>
             <Header dividing content="Search to Make Friend" />
-            <Input  onChange={this.handleSearchChange} icon={<Icon name='search' inverted circular link />} placeholder='Search...' />
-            <Header dividing  />
+            <Input
+              onChange={this.handleSearchChange}
+              icon={<Icon name="search" inverted circular link />}
+              placeholder="Search..."
+            />
+            <Header dividing />
             {results && (
-                <Card.Group itemsPerRow={8} stackable>
+              <Card.Group itemsPerRow={8} stackable>
                 {results &&
-                  results.map(result => (
+                  results.map((result) => (
                     <PersonCard key={result.id} user={result} />
                   ))}
               </Card.Group>
             )}
-            {results.length === 0 && value !=='' &&(
-                <Label >không Tìm Thấy Thành Viên này</Label>
+            {results.length === 0 && value !== "" && (
+              <Label>không Tìm Thấy Thành Viên này</Label>
             )}
-            {value === '' && (
-              <Label style={{marginTop: '20px'}}>Tìm Kiếm Bạn bè để tham gia nhiều sự kiện hấp dẫn hơn</Label>
+            {value === "" && (
+              <Label style={{ marginTop: "20px" }}>
+                Tìm Kiếm Bạn bè để tham gia nhiều sự kiện hấp dẫn hơn
+              </Label>
             )}
           </Segment>
         </Grid.Column>
@@ -78,7 +92,7 @@ class PeopleDashboard extends Component {
             <Header dividing content="People following me" />
             <Card.Group itemsPerRow={8} stackable>
               {followers &&
-                followers.map(follow => (
+                followers.map((follow) => (
                   <PersonCard key={follow.id} user={follow} />
                 ))}
             </Card.Group>
@@ -91,7 +105,7 @@ class PeopleDashboard extends Component {
               style={{ padding: " 20px 0 20px 0" }}
             >
               {following ? (
-                following.map(follow => (
+                following.map((follow) => (
                   <PersonCard key={follow.id} user={follow} />
                 ))
               ) : (
@@ -110,11 +124,11 @@ class PeopleDashboard extends Component {
   }
 }
 
-const mapState = state => ({
+const mapState = (state) => ({
   auth: state.firebase.auth,
   followers: state.firestore.ordered.followers,
   following: state.firestore.ordered.following,
-  allUsers: state.firestore.ordered.allUsers
+  allUsers: state.firestore.ordered.allUsers,
 });
 const query = ({ auth }) => {
   return [
@@ -122,21 +136,21 @@ const query = ({ auth }) => {
       collection: "users",
       doc: auth.uid,
       subcollections: [{ collection: "followers" }],
-      storeAs: "followers"
+      storeAs: "followers",
     },
     {
       collection: "users",
       doc: auth.uid,
       subcollections: [{ collection: "following" }],
-      storeAs: "following"
+      storeAs: "following",
     },
     {
       collection: "users",
-      storeAs: "allUsers"
-    }
+      storeAs: "allUsers",
+    },
   ];
 };
 export default compose(
   connect(mapState),
-  firestoreConnect(props => query(props))
+  firestoreConnect((props) => query(props))
 )(PeopleDashboard);

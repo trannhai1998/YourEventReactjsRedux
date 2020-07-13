@@ -4,12 +4,13 @@ import EventListAttendee from "./EventListAttendee";
 import format from "date-fns/format";
 import { Link } from "react-router-dom";
 import { ObjectToArray } from "./../../../app/util/helpers";
-import isToday from 'date-fns/is_today';
-import isPast from 'date-fns/is_past';
+import isToday from "date-fns/is_today";
+import isPast from "date-fns/is_past";
+import moment from "moment";
 
 class EventListItem extends Component {
   render() {
-    const { event} = this.props;
+    const { event } = this.props;
     const istoday = isToday(event.date);
     const ispast = isPast(event.date);
     return (
@@ -56,8 +57,9 @@ class EventListItem extends Component {
         </Segment>
         <Segment>
           <span>
-            <Icon name="clock" /> {format(event.date, "dddd Do MMMM")} at{" "}
-            {format(event.date, "HH:mm")} |
+            <Icon name="clock" />{" "}
+            {moment(event.date.seconds * 1000).format("dddd Do MMMM")} at{" "}
+            {moment(event.date.seconds * 1000).format("HH:mm")} |
             <Icon name="marker" />
             {event.venue}
           </span>
@@ -65,7 +67,7 @@ class EventListItem extends Component {
         <Segment secondary>
           <List horizontal>
             {event.attendees &&
-              ObjectToArray(event.attendees).map(attendee => (
+              ObjectToArray(event.attendees).map((attendee) => (
                 <EventListAttendee key={attendee.id} attendee={attendee} />
               ))}
           </List>

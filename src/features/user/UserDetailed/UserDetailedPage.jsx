@@ -11,14 +11,16 @@ import UserDetailedSidebar from "./UserDetailedSidebar";
 import { UserDetailedQuery } from "./../UserQueries";
 import LoadingComponent from "./../../../app/layout/Loading";
 import { getUserEvents, followUser, unfollowUser } from "./../UserActions";
-import { toastr } from 'react-redux-toastr'
+import { toastr } from "react-redux-toastr";
 
 class UserDetailedPage extends Component {
   async componentDidMount() {
-    let user = await this.props.firestore.get(`users/${this.props.match.params.id}`);
-    if (!user.exists){
-      toastr.error('Not Fount ', ' This is not the User you are looking For ');
-      this.props.history.push('/error');
+    let user = await this.props.firestore.get(
+      `users/${this.props.match.params.id}`
+    );
+    if (!user.exists) {
+      toastr.error("Not Fount ", " This is not the User you are looking For ");
+      this.props.history.push("/error");
     }
     await this.props.getUserEvents(this.props.userUid);
   }
@@ -37,16 +39,17 @@ class UserDetailedPage extends Component {
       eventsLoading,
       followUser,
       following,
-      unfollowUser
+      unfollowUser,
     } = this.props;
     const isCurrentUser = auth.uid === match.params.id;
-    const loading = requesting[`users/${match.params.id}`]
+    const loading = requesting[`users/${match.params.id}`];
     const isFollowing = !isEmpty(following);
     let noHavePhoto;
     if (isCurrentUser && photos) {
       noHavePhoto = photos.length === 0;
     }
     if (loading) return <LoadingComponent inverted={true} />;
+    console.log(profile);
     return (
       <Grid>
         <UserDetailedHeader profile={profile} />
@@ -56,7 +59,7 @@ class UserDetailedPage extends Component {
           profile={profile}
           isFollowing={isFollowing}
           followUser={followUser}
-          unfollowUser= {unfollowUser}
+          unfollowUser={unfollowUser}
         />
         <UserDetailedPhotos noHavePhoto={noHavePhoto} photos={photos} />
         <UserDetailedEvents
@@ -87,20 +90,17 @@ const mapState = (state, ownProps) => {
     requesting: state.firestore.status.requesting,
     events: state.event,
     eventsLoading: state.async.loading,
-    following: state.firestore.ordered.following
+    following: state.firestore.ordered.following,
   };
 };
 const actions = {
   getUserEvents,
   followUser,
-  unfollowUser
+  unfollowUser,
 };
 
 export default compose(
-  connect(
-    mapState,
-    actions
-  ),
+  connect(mapState, actions),
   firestoreConnect((auth, userUid, match) =>
     UserDetailedQuery(auth, userUid, match)
   )

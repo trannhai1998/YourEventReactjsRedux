@@ -9,6 +9,7 @@ const UserDetailedSidebar = ({
   unfollowUser,
   OpenFormChat,
 }) => {
+  console.log(profile);
   return (
     <Grid.Column width={4}>
       <Segment>
@@ -40,7 +41,6 @@ const UserDetailedSidebar = ({
             content="Follow User"
           />
         )}
-        <Button color="teal" content=" Chat " />
       </Segment>
     </Grid.Column>
   );
