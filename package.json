@@ -9,7 +9,7 @@
     "google-map-react": "^1.1.7",
     "history": "^4.7.2",
     "lodash": "^4.17.11",
-    "moment": "^2.22.0",
+    "moment": "^2.29.2",
     "react": "^16.8.6",
     "react-cropper": "^1.0.1",
     "react-datepicker": "^3.1.3",
